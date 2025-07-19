@@ -4,7 +4,7 @@ const NavbarStyles = {
   nav: { 
     justifyContent: "center", 
     padding: "1rem", 
-    background: "black", 
+    backgroundColor: "black", 
     display: "flex", 
   },
 
