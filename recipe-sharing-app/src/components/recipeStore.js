@@ -4,6 +4,8 @@ export const useRecipeStore = create((set) => ({
   recipes: [],
   searchTerm: '',
   filteredRecipes: [],
+  favorites: [],
+  recommendations: [],
 
   // Add a new recipe
   addRecipe: (newRecipe) =>
@@ -17,7 +19,7 @@ export const useRecipeStore = create((set) => ({
       };
     }),
 
-  // Update an existing recipe
+  // Update a recipe
   updateRecipe: (updatedRecipe) =>
     set((state) => {
       const updatedRecipes = state.recipes.map((recipe) =>
@@ -40,10 +42,11 @@ export const useRecipeStore = create((set) => ({
         filteredRecipes: updatedRecipes.filter((recipe) =>
           recipe.title.toLowerCase().includes(state.searchTerm.toLowerCase())
         ),
+        favorites: state.favorites.filter((favId) => favId !== id),
       };
     }),
 
-  // Update search term + filter recipes
+  // Search
   setSearchTerm: (term) =>
     set((state) => ({
       searchTerm: term,
@@ -51,4 +54,26 @@ export const useRecipeStore = create((set) => ({
         recipe.title.toLowerCase().includes(term.toLowerCase())
       ),
     })),
+
+  // Favorites
+  addFavorite: (recipeId) =>
+    set((state) => ({
+      favorites: [...new Set([...state.favorites, recipeId])],
+    })),
+
+  removeFavorite: (recipeId) =>
+    set((state) => ({
+      favorites: state.favorites.filter((id) => id !== recipeId),
+    })),
+
+  // Recommendations
+  generateRecommendations: () =>
+    set((state) => {
+      // Simple logic: recommend recipes that are not favorited yet
+      const recommended = state.recipes.filter(
+        (recipe) =>
+          !state.favorites.includes(recipe.id) && Math.random() > 0.5
+      );
+      return { recommendations: recommended };
+    }),
 }));
