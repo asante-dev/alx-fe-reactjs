@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
+import recipeData from "../data.json";
 
 const HomePage = () => {
   const [recipes, setRecipes] = useState([]);
 
-  useEffect(() => {
-    fetch("/data.json")
-      .then((res) => res.json())
-      .then((data) => setRecipes(data));
-  }, []);
+    useEffect(() => {
+      setRecipes(recipeData);
+    }, []);
 
   return (
-    <div className="grid gap-6 p-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 p-4 grid-cols-1 md:grid-cols-2">
       {recipes.map((recipe) => (
         <div
           key={recipe.id}
