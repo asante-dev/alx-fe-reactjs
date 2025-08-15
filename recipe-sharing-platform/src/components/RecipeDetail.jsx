@@ -18,7 +18,7 @@ const RecipeDetail = () => {
   }
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
+    <div className="p-4 max-w-2xl mx-auto bg-blue rounded-lg shadow">
       <img
         src={recipe.image}
         alt={recipe.title}
