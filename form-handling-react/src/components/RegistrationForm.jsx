@@ -1,27 +1,16 @@
-import {useState} from 'react';
+import { useState } from "react";
 
 function RegistrationForm() {
-    const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: '',
-    });
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
-    const [errors, setErrors] = useState({});
-
-    const handleChange = (e) => {
-        const {name, value} = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    }
-
-     const validate = () => {
+  const validate = () => {
     let newErrors = {};
-    if (!formData.username) newErrors.username = "Username is required";
-    if (!formData.email) newErrors.email = "Email is required";
-    if (!formData.password) newErrors.password = "Password is required";
+    if (!username) newErrors.username = "Username is required";
+    if (!email) newErrors.email = "Email is required";
+    if (!password) newErrors.password = "Password is required";
     return newErrors;
   };
 
@@ -32,7 +21,7 @@ function RegistrationForm() {
       setErrors(validationErrors);
     } else {
       setErrors({});
-      alert(`Form submitted!\n${JSON.stringify(formData, null, 2)}`);
+      alert(`Form submitted!\n${JSON.stringify({ username, email, password }, null, 2)}`);
     }
   };
 
@@ -43,8 +32,8 @@ function RegistrationForm() {
         <input
           type="text"
           name="username"
-          value={formData.username}
-          onChange={handleChange}
+          value={username} 
+          onChange={(e) => setUsername(e.target.value)}
         />
         {errors.username && <span style={{ color: "red" }}>{errors.username}</span>}
       </div>
@@ -54,8 +43,8 @@ function RegistrationForm() {
         <input
           type="email"
           name="email"
-          value={formData.email}
-          onChange={handleChange}
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)}
         />
         {errors.email && <span style={{ color: "red" }}>{errors.email}</span>}
       </div>
@@ -65,8 +54,8 @@ function RegistrationForm() {
         <input
           type="password"
           name="password"
-          value={formData.password}
-          onChange={handleChange}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         {errors.password && <span style={{ color: "red" }}>{errors.password}</span>}
       </div>
