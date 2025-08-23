@@ -1,40 +1,51 @@
-// App.jsx
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Profile from "./pages/Profile";
-import BlogPost from "./pages/BlogPost";
-import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthContext.jsx";
+import Layout from "./layout/Layout.jsx";
+
+import Home from "./pages/Home.jsx";
+import Blog from "./pages/Blog.jsx";
+import BlogPost from "./pages/BlogPost.jsx";
+import Profile from "./components/Profile.jsx";
+import Login from "./pages/Login.jsx";
+import NotFound from "./pages/NotFound.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+
+export default function App() {
   return (
-    <Router>
-      <nav className="p-4 bg-gray-200 flex gap-4">
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
-        <Link to="/profile">Profile</Link>
-        <Link to="/posts/42">Blog Post 42</Link>
-      </nav>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<Home />} />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
+            <Route path="/blog" element={<Blog />} />
 
-        {/* Protected Route Example */}
-        <Route
-          path="/profile/*"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
+            <Route path="/blog/:id" element={<BlogPost />} />
 
-        {/* Dynamic Route Example */}
-        <Route path="/posts/:id" element={<BlogPost />} />
-      </Routes>
-    </Router>
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile/*"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="login" element={<Login />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
-
-export default App;
