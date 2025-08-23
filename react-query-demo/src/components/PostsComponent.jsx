@@ -1,4 +1,3 @@
-// PostsComponent.jsx
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
@@ -13,12 +12,16 @@ export default function PostsComponent() {
     error,
     isLoading,
     isError,
+    isFetching,
     refetch,
   } = useQuery({
     queryKey: ["posts"],
     queryFn: fetchPosts,
-    staleTime: 5000, // data stays "fresh" for 5 seconds
-    cacheTime: 1000 * 60 * 5, // cache lives for 5 minutes
+    // 🔑 caching + refetch behavior
+    staleTime: 5000,              // fresh for 5 seconds
+    cacheTime: 1000 * 60 * 5,     // cache stays in memory for 5 min
+    refetchOnWindowFocus: true,   // refetch when tab/window regains focus
+    keepPreviousData: true,       // keep old data while fetching new
   });
 
   if (isLoading) return <p>Loading posts...</p>;
@@ -27,12 +30,16 @@ export default function PostsComponent() {
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Posts</h2>
+
       <button
         onClick={() => refetch()}
         className="px-3 py-1 bg-blue-500 text-white rounded mb-4"
       >
         Refetch Posts
       </button>
+
+      {isFetching && <p className="text-sm text-gray-500">Updating...</p>}
+
       <ul className="space-y-2">
         {posts.slice(0, 10).map((post) => (
           <li key={post.id} className="border p-2 rounded">
