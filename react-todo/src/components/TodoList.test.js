@@ -1,53 +1,101 @@
-// src/components/TodoList.test.js
 import { render, screen, fireEvent } from "@testing-library/react";
-import TodoList from "./TodoList";
+import "@testing-library/jest-dom";
+import TodoList from "../components/TodoList";
 
-describe("TodoList Component", () => {
-  test("renders initial todos", () => {
+describe("TodoList implementation tests", () => {
+  beforeEach(() => {
     render(<TodoList />);
-
-    expect(screen.getByText("Learn React")).toBeInTheDocument();
-    expect(screen.getByText("Wire up Tailwind")).toBeInTheDocument();
-    expect(screen.getByText("Write tests")).toBeInTheDocument();
   });
 
-  test("can add a new todo", () => {
-    render(<TodoList />);
+  test("renders initial demo todos", () => {
+    const list = screen.getByRole("list", { name: /todo-list/i });
+    expect(list).toBeInTheDocument();
 
-    const input = screen.getByPlaceholderText(/add todo/i);
-    const button = screen.getByRole("button", { name: /add/i });
+    expect(
+      screen.getByRole("button", { name: "toggle-Learn React" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "toggle-Wire up Tailwind" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "toggle-Write tests" })
+    ).toBeInTheDocument();
 
-    fireEvent.change(input, { target: { value: "New Task" } });
-    fireEvent.click(button);
-
-    expect(screen.getByText("New Task")).toBeInTheDocument();
+    const tailwindBtn = screen.getByRole("button", {
+      name: "toggle-Wire up Tailwind",
+    });
+    expect(tailwindBtn).toHaveAttribute("aria-pressed", "true");
+    expect(tailwindBtn).toHaveClass("line-through");
   });
 
-  test("can toggle a todo", () => {
-    render(<TodoList />);
+  test("adds a new todo (and clears input)", () => {
+    const input = screen.getByPlaceholderText(/add a new todo/i);
+    const addButton = screen.getByRole("button", { name: /add/i });
 
-    const todo = screen.getByRole("button", { name: /toggle-Learn React/i });
-    fireEvent.click(todo);
+    fireEvent.change(input, { target: { value: "Study Jest" } });
+    fireEvent.click(addButton);
 
-    expect(todo).toHaveAttribute("aria-pressed", "true");
+    expect(
+      screen.getByRole("button", { name: "toggle-Study Jest" })
+    ).toBeInTheDocument();
+    expect(input).toHaveValue("");
   });
 
-  test("can delete a todo", () => {
-    render(<TodoList />);
+  test("prevents adding empty or whitespace-only todos", () => {
+    const input = screen.getByPlaceholderText(/add a new todo/i);
+    const addButton = screen.getByRole("button", { name: /add/i });
 
-    const deleteButton = screen.getByRole("button", { name: /delete-Learn React/i });
-    fireEvent.click(deleteButton);
+    const beforeCount = screen.getAllByRole("listitem").length;
 
-    expect(screen.queryByText("Learn React")).not.toBeInTheDocument();
+    fireEvent.change(input, { target: { value: "   " } });
+    fireEvent.click(addButton);
+
+    const afterCount = screen.getAllByRole("listitem").length;
+    expect(afterCount).toBe(beforeCount);
   });
 
-  test("shows empty message when no todos left", () => {
-    render(<TodoList />);
+  test("toggles a todo's completed state when clicked", () => {
+    const learnBtn = screen.getByRole("button", { name: "toggle-Learn React" });
 
-    // delete all todos one by one
-    const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
-    deleteButtons.forEach((btn) => fireEvent.click(btn));
+    expect(learnBtn).toHaveAttribute("aria-pressed", "false");
+    expect(learnBtn).not.toHaveClass("line-through");
 
-    expect(screen.getByLabelText("empty-message")).toBeInTheDocument();
+    fireEvent.click(learnBtn);
+    expect(learnBtn).toHaveAttribute("aria-pressed", "true");
+    expect(learnBtn).toHaveClass("line-through");
+
+    fireEvent.click(learnBtn);
+    expect(learnBtn).toHaveAttribute("aria-pressed", "false");
+    expect(learnBtn).not.toHaveClass("line-through");
+  });
+
+  test("deletes a todo and updates the list", () => {
+    const toggleBtn = screen.getByRole("button", {
+      name: "toggle-Write tests",
+    });
+    expect(toggleBtn).toBeInTheDocument();
+
+    // Click its delete button
+    const deleteBtn = screen.getByRole("button", {
+      name: "delete-Write tests",
+    });
+    fireEvent.click(deleteBtn);
+
+    expect(
+      screen.queryByRole("button", { name: "toggle-Write tests" })
+    ).not.toBeInTheDocument();
+  });
+
+  test("shows empty-state message after deleting all todos", () => {
+    const deletes = screen.getAllByRole("button", { name: /delete-/i });
+    deletes.forEach((btn) => fireEvent.click(btn));
+
+    expect(
+      screen.queryByRole("list", { name: /todo-list/i })
+    ).not.toBeInTheDocument();
+
+    const empty = screen.getByRole("status", { name: /empty-message/i });
+    expect(empty).toBeInTheDocument();
+    expect(empty).toHaveTextContent(/no todos/i);
   });
 });
